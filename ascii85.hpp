@@ -5,25 +5,32 @@
 #include <cctype>
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <stdexcept>
 
-#include <iostream>
+template <typename InIt>
+char checked_bump(InIt & begin, InIt end)
+{
+    if (begin == end)
+        throw std::invalid_argument("unexpected end of input");
+    return *begin++;
+}
 
-template <typename T, typename InIt, typename OutIt>
+template <typename InIt, typename OutIt>
 OutIt ascii85_decode(InIt begin, InIt end, OutIt out)
 {
     // Eat any whitespace and start delimiter "<"
     while (begin != end && std::isspace(static_cast<unsigned char>(*begin)))
         ++begin;
-    if (begin == end || *begin++ != '<' || begin == end || *begin++ != '~')
+    if (checked_bump(begin, end) != '<' || checked_bump(begin, end) != '~')
         throw std::invalid_argument("missing/invalid start delimiter");
 
     std::uint8_t i = 0;
-    std::uint8_t padded = 0;
+    std::uint8_t padding = 0;
     std::uint32_t n = 0;
     while (true) {
         char c;
-        if (begin != end && padded == 0 && (c = *begin++) != '~') {
+        if (padding == 0 && (c = checked_bump(begin, end)) != '~') {
             if (std::isspace(static_cast<unsigned char>(c)))
                 continue;
             if (c == 'z') {
@@ -39,28 +46,36 @@ OutIt ascii85_decode(InIt begin, InIt end, OutIt out)
             if (i == 1U)
                 throw std::invalid_argument("unexpected padding");
             c = 'u';
-            ++padded;
+            ++padding;
         }
         if (c != 'z') {
+            if (n > std::numeric_limits<std::uint32_t>::max() / 85)
+                throw std::invalid_argument("overflow in group");
             n *= 85;
             n += c - 33;
+            if (n < (c - 33))
+                throw std::invalid_argument("overflow in group");
             i = (i < 4U) ? i + 1 : 0;
         }
         if (i == 0U)  {
-            assert(padded <= 3);
-            *out++ = T(/*std::byte*/n >> 24);
-            if (padded == 3)
+            assert(padding <= 3);
+            *out++ = std::byte(n >> 24);
+            if (padding == 3)
                 break;
-            *out++ = T(/*std::byte*/n >> 16);
-            if (padded == 2)
+            *out++ = std::byte(n >> 16);
+            if (padding == 2)
                 break;
-            *out++ = T(/*std::byte*/n >> 8);
-            if (padded == 1)
+            *out++ = std::byte(n >> 8);
+            if (padding == 1)
                 break;
-            *out++ = T(/*std::byte*/n);
+            *out++ = std::byte(n);
             n = 0;
         }
     }
+
+    if (checked_bump(begin, end) != '>')
+        throw std::invalid_argument("missing/invalid end delimiter");
+
     return out;
 }
 

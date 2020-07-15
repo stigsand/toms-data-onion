@@ -9,17 +9,16 @@ template <class Fun>
 int main_common(Fun && decoder)
 try {
     skip_to_payload(std::cin);
-    std::vector<std::byte> encoded;
+    std::vector<std::byte> payload;
     ascii85_decode(
         std::istream_iterator<char>(std::cin),
         std::istream_iterator<char>(),
-        std::back_inserter(encoded));
-    auto decoded = decoder(encoded);
-    for (auto b: decoded)
-        std::cout << static_cast<char>(b);
+        std::back_inserter(payload));
+    for (auto b: decoder(payload))
+        std::cout << std::to_integer<char>(b);
     return 0;
 }
 catch (std::exception const & e) {
-    std::cerr << e.what() << '\n';
+    std::cerr << "Error: " << e.what() << '\n';
     return 1;
 }

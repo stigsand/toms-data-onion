@@ -28,6 +28,10 @@ target_compile_features(layer5 PRIVATE cxx_std_17)
 target_sources(layer5 PRIVATE layer5.cpp)
 target_link_libraries(layer5 PRIVATE OpenSSL::Crypto)
 
-add_executable(tomtel_test)
-target_compile_features(tomtel_test PRIVATE cxx_std_17)
-target_sources(tomtel_test PRIVATE tomtel_test.cpp)
+add_executable(tomtel-test)
+target_compile_features(tomtel-test PRIVATE cxx_std_17)
+target_sources(tomtel-test PRIVATE tomtel_test.cpp)
+
+enable_testing()
+add_test(NAME tomtel-test COMMAND tomtel-test)
+set_tests_properties(tomtel-test PROPERTIES PASS_REGULAR_EXPRESSION "hello world")

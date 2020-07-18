@@ -3,7 +3,7 @@
 
 using b = std::byte;
 std::vector program {
-        b { 0x50 }, b { 48 },  // MVI b <- 72
+        b { 0x50 }, b { 0x48 },  // MVI b <- 72
         b { 0xC2 },  // ADD a <- b
         b { 0x02 },  // OUT a
         b { 0xA8 }, b { 0x4D }, b { 0x00 }, b { 0x00 }, b { 0x00 },  // MVI32 ptr <- 0x0000004d
@@ -54,7 +54,7 @@ std::vector program {
 
 int main()
 try {
-    for (auto b: run(program))
+    for (auto b: tomtel::run(program))
         std::cout << std::to_integer<char>(b); 
 }
 catch (std::exception const & e) {

@@ -24,32 +24,33 @@ std::vector program {
         b { 0x4F },  // MV a <- (ptr+c)
         b { 0x02 },  // OUT a
         b { 0xB0 }, b { 0x29 }, b { 0x00 }, b { 0x00 }, b { 0x00 },  // MVI32 pc <- 0x00000029
-    48 31  # MVI a <- 49
-    02     # OUT a
-    50 0C  # MVI b <- 12
-    C3     # SUB a <- b
-    02     # OUT a
-    AA     # MV32 ptr <- lb
-    57     # MV b <- (ptr+c)
-    48 02  # MVI a <- 2
-    C1     # CMP
-    21 3A 00 00 00  # JEZ 0x0000003a
-    48 32  # MVI a <- 50
-    02     # OUT a
-    48 77  # MVI a <- 119
-    02     # OUT a
-    48 6F  # MVI a <- 111
-    02     # OUT a
-    48 72  # MVI a <- 114
-    02     # OUT a
-    48 6C  # MVI a <- 108
-    02     # OUT a
-    48 64  # MVI a <- 100
-    02     # OUT a
-    48 21  # MVI a <- 33
-    02     # OUT a
-    01     # HALT
-    65 6F 33 34 2C  # non-instruction data
+        b { 0x48 }, b { 0x31 },  // MVI a <- 49
+        b { 0x02 },  // OUT a
+        b { 0x50 }, b { 0x0C },  // MVI b <- 12
+        b { 0xC3 },  // SUB a <- b
+        b { 0x02 },  // OUT a
+        b { 0xAA },  // MV32 ptr <- lb
+        b { 0x57 },  // MV b0x <- (ptr+c)
+        b { 0x48 }, b { 0x02 },  // MVI a <- 2
+        b { 0xC1 },  // CMP
+        b { 0x21 }, b { 0x3A }, b { 0x00 }, b { 0x00 }, b { 0x00 },  // JEZ 0x0000003a
+        b { 0x48 }, b { 0x32 },  // MVI a <- 50
+        b { 0x02 },  // OUT a
+        b { 0x48 }, b { 0x77 },  // MVI a <- 119
+        b { 0x02 },  // OUT a
+        b { 0x48 }, b { 0x6F },  // MVI a <- 111
+        b { 0x02 },  // OUT a
+        b { 0x48 }, b { 0x72 },  // MVI a <- 114
+        b { 0x02 },  // OUT a
+        b { 0x48 }, b { 0x6C },  // MVI a <- 108
+        b { 0x02 },  // OUT a
+        b { 0x48 }, b { 0x64 },  // MVI a <- 100
+        b { 0x02 },  // OUT a
+        b { 0x48 }, b { 0x21 },  // MVI a <- 33
+        b { 0x02 },  // OUT a
+        b { 0x01 },  // HALT
+        b { 0x65 }, b { 0x6F }, b { 0x33 }, b { 0x34 }, b { 0x2C }  // non-instruction data
+};
 
 int main()
 try {

@@ -1,6 +1,7 @@
 #ifndef ASCII85_HPP
 #define ASCII85_HPP
 
+#include "enforce.hpp"
 #include <cassert>
 #include <cctype>
 #include <cstddef>
@@ -11,8 +12,7 @@
 template <typename InIt>
 char checked_bump(InIt & begin, InIt end)
 {
-    if (begin == end)
-        throw std::invalid_argument("unexpected end of input");
+    enforce(begin != end, "unexpected end of input");
     return *begin++;
 }
 
@@ -22,8 +22,7 @@ OutIt ascii85_decode(InIt begin, InIt end, OutIt out)
     // Eat any whitespace and start delimiter "<"
     while (begin != end && std::isspace(static_cast<unsigned char>(*begin)))
         ++begin;
-    if (checked_bump(begin, end) != '<' || checked_bump(begin, end) != '~')
-        throw std::invalid_argument("missing/invalid start delimiter");
+    enforce(checked_bump(begin, end) == '<' && checked_bump(begin, end) == '~', "missing/invalid start delimiter");
 
     std::uint8_t i = 0;
     std::uint8_t padding = 0;
@@ -33,18 +32,13 @@ OutIt ascii85_decode(InIt begin, InIt end, OutIt out)
         if (padding == 0 && (c = checked_bump(begin, end)) != '~') {
             if (std::isspace(static_cast<unsigned char>(c)))
                 continue;
-            if (c == 'z') {
-                if (i > 0U)
-                    throw std::invalid_argument("'z' in middle of group");
-            }
-            if (c < 33 || c > 117)
-                throw std::invalid_argument("invalid character");
+            enforce(c != 'z' || i == 0U, "'z' in middle of group");
+            enforce(c >= 33 && c <= 117, "invalid character");
         }
         else {
             if (i == 0U)
                 break;
-            if (i == 1U)
-                throw std::invalid_argument("unexpected padding");
+            enforce(i != 1U, "unexpected padding");
             c = 'u';
             ++padding;
         }
@@ -73,8 +67,7 @@ OutIt ascii85_decode(InIt begin, InIt end, OutIt out)
         }
     }
 
-    if (checked_bump(begin, end) != '>')
-        throw std::invalid_argument("missing/invalid end delimiter");
+    enforce(checked_bump(begin, end) == '>', "missing/invalid end delimiter");
 
     return out;
 }
